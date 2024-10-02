@@ -1,0 +1,188 @@
+menu "App Configuration"  
+
+    menu "Wi-Fi Configuration"
+        config APP_WIFI_SSID
+            string "WiFi SSID"
+            default "MY_WIFI_NETWORK"
+            help
+                SSID (network name) for the app to connect to.       
+        
+        config APP_WIFI_PASSWORD
+            string "WiFi Password"
+            default "mypassword"
+            help
+                WiFi password (WPA or WPA2) for the example to use.
+        
+        config APP_WIFI_CONN_MAX_RETRY
+            int "Maximum retry"
+            default 6
+            help
+                Set the Maximum retry to avoid station reconnecting to the AP unlimited,
+                in case the AP is really inexistent.
+
+        choice APP_WIFI_SCAN_METHOD
+            prompt "WiFi Scan Method"
+            default APP_WIFI_SCAN_METHOD_ALL_CHANNEL
+            help
+                WiFi scan method:
+        
+                If "Fast" is selected, scan will end after find SSID match AP.
+        
+                If "All Channel" is selected, scan will end after scan all the channel.
+        
+            config APP_WIFI_SCAN_METHOD_FAST
+                bool "Fast"
+            config APP_WIFI_SCAN_METHOD_ALL_CHANNEL
+                bool "All Channel"
+        endchoice
+
+        menu "WiFi Scan threshold"
+            config APP_WIFI_SCAN_RSSI_THRESHOLD
+                int "WiFi minimum rssi"
+                range -127 0
+	    
+                default -127
+                help
+                    The minimum rssi to accept in the scan mode.
+	    
+            choice APP_WIFI_SCAN_AUTH_MODE_THRESHOLD
+                prompt "WiFi Scan auth mode threshold"
+                default APP_WIFI_AUTH_OPEN
+                help
+                    The weakest authmode to accept in the scan mode.
+	    
+                config APP_WIFI_AUTH_OPEN
+                    bool "OPEN"
+                config APP_WIFI_AUTH_WEP
+                    bool "WEP"
+                config APP_WIFI_AUTH_WPA_PSK
+                    bool "WPA PSK"
+                config APP_WIFI_AUTH_WPA2_PSK
+                    bool "WPA2 PSK"
+                config APP_WIFI_AUTH_WPA_WPA2_PSK
+                    bool "WPA WPA2 PSK"
+                config APP_WIFI_AUTH_WPA2_ENTERPRISE
+                    bool "WPA2 ENTERPRISE"
+                config APP_WIFI_AUTH_WPA3_PSK
+                    bool "WPA3 PSK"
+                config APP_WIFI_AUTH_WPA2_WPA3_PSK
+                    bool "WPA2 WPA3 PSK"
+                config APP_WIFI_AUTH_WAPI_PSK
+                    bool "WAPI PSK"
+            endchoice
+        endmenu
+
+        choice APP_WIFI_CONNECT_AP_SORT_METHOD
+            prompt "WiFi Connect AP Sort Method"
+            default APP_WIFI_CONNECT_AP_BY_SIGNAL
+            help
+                WiFi connect AP sort method:
+
+                If "Signal" is selected, Sort matched APs in scan list by RSSI.
+	    
+                If "Security" is selected, Sort matched APs in scan list by security mode.
+	    
+            config APP_WIFI_CONNECT_AP_BY_SIGNAL
+                bool "Signal"
+            config APP_WIFI_CONNECT_AP_BY_SECURITY
+                bool "Security"
+        endchoice
+    endmenu
+    
+    menu "IP Configuration"
+        config APP_CONNECT_IPV4
+            bool
+            depends on LWIP_IPV4
+            default y
+	    
+        config APP_CONNECT_IPV6        
+            bool "Obtain IPv6 address"
+            default y
+            select LWIP_IPV6
+            help
+                By default the app will wait until IPv4 and IPv6 local link addresses are obtained.
+                Disable this option if the network does not support IPv6.
+                Choose the preferred IPv6 address type if the connection code should wait until other than
+                the local link address gets assigned.
+                Consider enabling IPv6 stateless address autoconfiguration (SLAAC) in the LWIP component.
+
+        if APP_CONNECT_IPV6
+        choice APP_CONNECT_PREFERRED_IPV6
+            prompt "Preferred IPv6 Type"
+            default APP_CONNECT_IPV6_PREF_LOCAL_LINK
+            help
+                Select which kind of IPv6 address the connect logic waits for.
+    
+            config APP_CONNECT_IPV6_PREF_LOCAL_LINK
+                bool "Local Link Address"
+                help
+                    Blocks until Local link address assigned.
+    
+            config APP_CONNECT_IPV6_PREF_GLOBAL
+                bool "Global Address"
+                help
+                    Blocks until Global address assigned.
+    
+            config APP_CONNECT_IPV6_PREF_SITE_LOCAL
+                bool "Site Local Address"
+                help
+                    Blocks until Site link address assigned.
+    
+            config APP_CONNECT_IPV6_PREF_UNIQUE_LOCAL
+                bool "Unique Local Link Address"
+                help
+                    Blocks until Unique local address assigned.    
+        endchoice	           
+        endif
+
+        config APP_IP_ENABLE_STATIC_IP
+            bool "enable static ip"
+            default y
+            help
+                Enable static IP
+        config APP_IP_STATIC_IP_ADDR
+            string "Static IP address"
+            default "192.168.178.201"
+            depends on APP_IP_ENABLE_STATIC_IP
+            help
+                Set static IP address.            
+        config APP_IP_STATIC_NETMASK_ADDR
+            string "Static netmask address"
+            default "255.255.255.0"
+            depends on APP_IP_ENABLE_STATIC_IP
+            help
+                Set static netmask address.            
+        config APP_IP_STATIC_GW_ADDR
+            string "Static gateway address"
+            default "192.168.178.1"
+            depends on APP_IP_ENABLE_STATIC_IP
+            help
+                Set static gateway address.
+    endmenu
+    
+    menu "ESP-NOW application data"        
+        config APP_ESPNOW_PMK
+            string "ESPNOW primary master key"
+            default "pmk1234567890123"
+            help
+                ESPNOW primary master for the example to use. The length of ESPNOW primary master must be 16 bytes.        
+        config APP_ESPNOW_LMK
+            string "ESP-NOW local master key"
+            default "lmk1234567890123"
+            help
+                ESPNOW local master for the example to use. The length of ESPNOW local master must be 16 bytes.        
+        config APP_ESPNOW_CHANNEL
+            int "Channel"
+            default 1
+            range 0 14
+            help
+                The channel on which sending and receiving ESPNOW data.
+        config APP_ESPNOW_PEER_MAC
+            string "MAC address (hex) of peer device we report the sensor data to"
+            default "FF:FF:FF:FF:FF:FF"            
+            help
+                In ESP-Now mode the device will send the sensor data to this peer address.
+    endmenu 
+    
+
+endmenu
